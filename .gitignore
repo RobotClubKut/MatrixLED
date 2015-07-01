@@ -1,3 +1,21 @@
+# PSoC Creator ignore
+codegentemp/
+Generated_Source/
+DP8051/
+CortexM3/
+Export/
+
+*.cywrk.*
+*.cyprj.*
+*.svd
+*.rpt
+*_timing.html
+*.cyversion
+*.uvopt
+*.uvproj
+*.cyfit
+
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
