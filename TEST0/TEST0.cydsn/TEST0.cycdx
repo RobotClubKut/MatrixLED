@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <blockRegMap version="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://cypress.com/xsd/cyblockregmap cyblockregmap.xsd" xmlns="http://cypress.com/xsd/cyblockregmap">
-  <block name="LED_WE" BASE="0x0" SIZE="0x0" desc="" visible="true" />
-  <block name="LED_CLK" BASE="0x0" SIZE="0x0" desc="" visible="true" />
-  <block name="LED_DG" BASE="0x0" SIZE="0x0" desc="" visible="true" />
-  <block name="cy_boot" BASE="0x0" SIZE="0x0" desc="" visible="true" />
-  <block name="LED_ALE" BASE="0x0" SIZE="0x0" desc="" visible="true" />
-  <block name="LED_DR" BASE="0x0" SIZE="0x0" desc="" visible="true" />
-  <block name="LED_A1" BASE="0x0" SIZE="0x0" desc="" visible="true" />
-  <block name="LED_SE" BASE="0x0" SIZE="0x0" desc="" visible="true" />
   <block name="LED_ABB" BASE="0x0" SIZE="0x0" desc="" visible="true" />
-  <block name="LED_A0" BASE="0x0" SIZE="0x0" desc="" visible="true" />
   <block name="LED_A3" BASE="0x0" SIZE="0x0" desc="" visible="true" />
   <block name="LED_A2" BASE="0x0" SIZE="0x0" desc="" visible="true" />
+  <block name="cy_boot" BASE="0x0" SIZE="0x0" desc="" visible="true" />
+  <block name="LED_ADDR" BASE="0x0" SIZE="0x0" desc="" visible="true">
+    <register name="LED_ADDR_CONTROL_REG" address="0x40006575" bitWidth="8" desc="" />
+  </block>
+  <block name="LED_SE" BASE="0x0" SIZE="0x0" desc="" visible="true" />
+  <block name="LED_A1" BASE="0x0" SIZE="0x0" desc="" visible="true" />
+  <block name="LED_WE" BASE="0x0" SIZE="0x0" desc="" visible="true" />
+  <block name="LED_DR" BASE="0x0" SIZE="0x0" desc="" visible="true" />
+  <block name="LED_ALE" BASE="0x0" SIZE="0x0" desc="" visible="true" />
+  <block name="LED_A0" BASE="0x0" SIZE="0x0" desc="" visible="true" />
+  <block name="LED_DG" BASE="0x0" SIZE="0x0" desc="" visible="true" />
+  <block name="LED_CLK" BASE="0x0" SIZE="0x0" desc="" visible="true" />
 </blockRegMap>
