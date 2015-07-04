@@ -44,8 +44,7 @@ static void dotMatrix_lineOut(const uint32* data,const uint8 addr)
 void dotMatrix_dataToArray(dotMatrix* dotMat)
 {
     uint8 i,j,h;
-    uint32 g_data;
-    uint32 r_data;
+	
     for(h = 0;h < 16;h++)
     {
         for(i = 0;i < 3;i++)
@@ -54,19 +53,19 @@ void dotMatrix_dataToArray(dotMatrix* dotMat)
             {
                 if(dotMat->array[i * 32 + j][h][0])
                 {
-                    dotMat->data[h][i][0] |= (0x00000001 << j);
+                    dotMat->data[h][i][0] |= (0x1 << j);
                 }
                 else
                 {
-                    dotMat->data[h][i][0] &= ~(0x00000001 << j);
+                    dotMat->data[h][i][0] &= ~(0x1 << j);
                 }
                 if(dotMat->array[i * 32 + j][h][1])
                 {
-                    dotMat->data[h][i][1] |= (0x00000001 << j);
+                    dotMat->data[h][i][1] |= (0x1 << j);
                 }
                 else
                 {
-                    dotMat->data[h][i][1] &= ~(0x00000001 << j);
+                    dotMat->data[h][i][1] &= ~(0x1 << j);
                 }
             }
         }
