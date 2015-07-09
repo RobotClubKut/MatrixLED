@@ -1,5 +1,6 @@
 # MatrixLED Project
 ## 概要
+(SS.png)
 * 16x96 2色マトリクスLEDパネルを用いてGithubの共同開発をするためのリポジトリです。
 * マイコンは [PSoC 5LP Prototyping kit](http://akizukidenshi.com/catalog/g/gM-09432/) (CY8C5888LTI-LP097) を用いています。
 
