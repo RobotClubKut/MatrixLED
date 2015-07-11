@@ -15,12 +15,23 @@
 #define DOTMATRIX_H
 
 typedef struct {
+	uint8 head[6];
+	uint8 start[4];
+	uint8 end[4];
+	uint8 data[768];
+	uint8 dataEnd[4];
+} pcData;
+
+typedef struct {
+	pcData inData;
     uint32 data[16][3][2];
     uint8 array[96][16][2];
 } dotMatrix;
 
+void dotMatrix_init(dotMatrix*);
 void dotMatrix_print(dotMatrix*);
 void dotMatrix_clear(dotMatrix*);
-    
+void dotMatrix_getPcData(dotMatrix*);
+
 #endif
 /* [] END OF FILE */
