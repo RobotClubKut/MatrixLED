@@ -10,6 +10,10 @@
  * ========================================
 */
 #include "DotMatrix.h"
+#define USB_DEBUG
+
+const uint8 DATA_START[6] = "pcmat";
+const uint8 DATA_END[4] = "end";
 
 static void dotMatrix_lineOut(const uint32* data,const uint8 addr)
 {
@@ -71,51 +75,61 @@ static void dotMatrix_dataToArray(dotMatrix* dotMat)
         }
     }
 }
-static void dotMatrix_USBInit(dotMatrix* dotMat)
+
+static void dotMatrix_USBGetStrCmp(dotMatrix* dotMat,uint8* str)
 {
-	int j = 0;
-	int i = 0;
 	uint8 buffer[255];
 	uint8 indata[255];
 	uint8 count;
+	uint8 i;
+	uint8 j = 0;
 	while(1)
 	{
-        if(USBUART_GetConfiguration() != 0u) 
-		{
+		if(USBUART_IsConfigurationChanged() != 0u) 
+	    {
+	        if(USBUART_GetConfiguration() != 0u)   
+	        {
+	            USBUART_CDC_Init();
+	        }
+	    }         
+	    if(USBUART_GetConfiguration() != 0u)    /* Service USB CDC when device configured */
+	    {
 			if(USBUART_DataIsReady() != 0u)
 			{
 				count = USBUART_GetAll(buffer);
-				/*
-				while(USBUART_CDCIsReady() == 0u);     
-		        USBUART_PutData(buffer, count);       
-				
-		        if(count == BUFFER_LEN)
-		        {
-		            while(USBUART_CDCIsReady() == 0u);  
-		            USBUART_PutData(NULL, 0u);         
-		        }
-				*/
-				
+				#ifdef USB_DEBUG
+				while(USBUART_CDCIsReady() == 0u);    /* Wait till component is ready to send more data to the PC */ 
+	            USBUART_PutData(buffer, count);       /* Send data back to PC */
+	            if(count == 255)
+	            {
+	                while(USBUART_CDCIsReady() == 0u); /* Wait till component is ready to send more data to the PC */ 
+	                USBUART_PutData(NULL, 0u);         /* Send zero-length packet to PC */
+	            }
+				#endif
 				for(i = 0;i < count;i++)
 				{
-					indata[j] = buffer[i];
-					j++;
+					if(j <= strlen((char*)str))
+					{
+						indata[j] = buffer[i];
+						j++;
+					}
 					if(buffer[i] == '\r')
 					{
 						indata[j-1] = '\0';
 						j = 0;
-						if(!strcmp((char*)indata,"start"))
+						if(strcmp((char*)indata,(char*)str) == 0)
 						{
 							return;
 						}
 					}
 				}
-			}
-		}
+			} 
+	    }
 	}
 }
 void dotMatrix_init(dotMatrix* dotMat)
 {
+	uint8 str[10] = "start";
 	CyGlobalIntEnable;
 	
     dotMatrix_clear(dotMat);
@@ -123,7 +137,7 @@ void dotMatrix_init(dotMatrix* dotMat)
 	USBUART_Start(0, USBUART_5V_OPERATION);
 	while (!USBUART_GetConfiguration());
     USBUART_CDC_Init();
-	dotMatrix_USBInit(dotMat);
+	dotMatrix_USBGetStrCmp(dotMat,str);
 }
 void dotMatrix_print(dotMatrix* dotMat)
 {
@@ -166,33 +180,10 @@ void dotMatrix_clear(dotMatrix* dotMat)
 
 void dotMatrix_getPcData(dotMatrix* dotMat)
 {
-	uint8 buffer[255];
-	uint8 count;
-	while(1)
-	{
-		if(USBUART_IsConfigurationChanged() != 0u) 
-	    {
-	        if(USBUART_GetConfiguration() != 0u)   
-	        {
-	            USBUART_CDC_Init();
-	        }
-	    }         
-	    if(USBUART_GetConfiguration() != 0u)    /* Service USB CDC when device configured */
-	    {
-			if(USBUART_DataIsReady() != 0u)
-			{
-				count = USBUART_GetAll(buffer);
-				while(USBUART_CDCIsReady() == 0u);    /* Wait till component is ready to send more data to the PC */ 
-	            USBUART_PutData(buffer, count);       /* Send data back to PC */
-				
-	            if(count == 255)
-	            {
-	                while(USBUART_CDCIsReady() == 0u); /* Wait till component is ready to send more data to the PC */ 
-	                USBUART_PutData(NULL, 0u);         /* Send zero-length packet to PC */
-	            }
-			} 
-	    }
-	}
+	dotMatrix_USBGetStrCmp(dotMat,(uint8*)DATA_START);	
+	while(!USBUART_CDCIsReady());
+	USBUART_PutString((char8*)DATA_START);
+	strcpy(dotMat->inData.head,(char*)DATA_START);
 }
 
 /* [] END OF FILE */

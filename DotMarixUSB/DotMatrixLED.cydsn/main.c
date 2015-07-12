@@ -15,12 +15,13 @@
 #include <string.h>
 #include "DotMatrix.h"
 
-#define BUFFER_LEN 255
+
 int main()
 {
     dotMatrix dotMat;// 16行2色3ワード(3*32 = 96)
     uint8 x,y[2];
     uint8 i,j,n;
+	uint8 buffer[255];
 	double temp;
     double k[2];
     
@@ -34,6 +35,8 @@ int main()
 	for (;;)
     {
 		dotMatrix_getPcData(&dotMat);
+		while(!USBUART_CDCIsReady());
+		USBUART_PutString("Success!\r");
         dotMatrix_clear(&dotMat);
         dotMatrix_print(&dotMat);
         //CyDelay(10);

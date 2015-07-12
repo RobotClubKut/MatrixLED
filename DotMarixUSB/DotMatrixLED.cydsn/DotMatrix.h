@@ -15,11 +15,11 @@
 #define DOTMATRIX_H
 
 typedef struct {
-	uint8 head[6];
-	uint8 start[4];
-	uint8 end[4];
-	uint8 data[768];
-	uint8 dataEnd[4];
+	char head[6];
+	char start[4];
+	char end[4];
+	char data[768];
+	char dataEnd[4];
 } pcData;
 
 typedef struct {
