@@ -50,10 +50,11 @@ void ball_updateBall(dot* ball)
 int main()
 {
     dotMatrix dotMat;// 16行2色3ワード(3*32 = 96)
-    uint8 x,y[2];
+    uint8 x = 0;
+	uint8 y[2] = {0};
     uint8 i,j,n;
 	double temp;
-    double k[2];
+    double k[2] = {0.0};
     
 	dot a[N];
     for (i = 0;i < N;i++)
@@ -96,7 +97,7 @@ int main()
         }
         else
         {
-            k[0] -= 2 * 3.14;
+            k[0] = 0;
         }
         if(k[1] < 2 * 3.14)
         {
@@ -104,7 +105,7 @@ int main()
         }
         else
         {
-            k[1] -= 2* 3.14;
+            k[1] = 0;
         }
         
         for(n = 0;n < N;n++)
