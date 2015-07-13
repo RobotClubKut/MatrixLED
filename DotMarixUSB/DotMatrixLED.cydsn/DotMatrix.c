@@ -120,8 +120,8 @@ static void dotMatrix_USBPcDataToData(dotMatrix* dotMat)
 			dotMat->data[i][j][1] = 0;
 			for(k = 0;k < 4;k++)
 			{
-				dotMat->data[i][j][1] |= dotMat->inData.data[i * 12 + j * 3 + k] << (8*k);
-				dotMat->data[i][j][0] |= dotMat->inData.data[i * 12 + j * 3 + k + 12 * 16 + 1] << (8*k);
+				dotMat->data[i][j][1] |= dotMat->inData.data[i * 12 + j * 4 + 3-k] << (8*k);
+				dotMat->data[i][j][0] |= dotMat->inData.data[i * 12 + j * 4 + 3-k + 12 * 16 + 1] << (8*k);
 			}
 		}
 	}
