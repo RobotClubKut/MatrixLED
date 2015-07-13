@@ -113,7 +113,7 @@ static void dotMatrix_USBPcDataToArray(dotMatrix* dotMat)
 	const uint8 row_byte = (floor(row/4.0f) + 1);
 	uint8 x;
 	uint8 y;
-	uint16 data_base = (row_byte) * (col+1);
+	uint16 data_base = (row_byte) * (col+1) + 1;
 	
 	for(y = y1;y <= y2;y++)
 	{
@@ -351,7 +351,7 @@ void dotMatrix_getPcData(dotMatrix* dotMat)
 							stage = STAGE_DATA;
 							data_size = ((dotMat->inData.end_point[0] - dotMat->inData.start_point[0] + 1) / 4)
 									   * (dotMat->inData.end_point[1] - dotMat->inData.start_point[1] + 1)
-									   * 2;
+									   * 2 + 1;
 							#ifdef USB_DEBUG
 							while(!USBUART_CDCIsReady());
 							sprintf(usb_debug_str,"\rpoint %x,%x end ok!\r"
