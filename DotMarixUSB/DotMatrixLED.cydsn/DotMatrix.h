@@ -10,6 +10,8 @@
  * ========================================
 */
 #include <project.h>
+#include <string.h>
+#include <math.h>
 
 #ifndef DOTMATRIX_H
 #define DOTMATRIX_H

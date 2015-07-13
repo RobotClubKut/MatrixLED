@@ -75,7 +75,72 @@ static void dotMatrix_dataToArray(dotMatrix* dotMat)
         }
     }
 }
-
+static uint8 hexToN(char a)
+{
+	return
+	(a == '0') ? 0:
+	(a == '1') ? 1:
+	(a == '2') ? 2:
+	(a == '3') ? 3:
+	(a == '4') ? 4:
+	(a == '5') ? 5:
+	(a == '6') ? 6:
+	(a == '7') ? 7:
+	(a == '8') ? 8:
+	(a == '9') ? 9:
+	(a == 'A') ? 10:
+	(a == 'B') ? 11:
+	(a == 'C') ? 12:
+	(a == 'D') ? 13:
+	(a == 'E') ? 14:
+	(a == 'F') ? 15:
+	(a == 'a') ? 10:
+	(a == 'b') ? 11:
+	(a == 'c') ? 12:
+	(a == 'd') ? 13:
+	(a == 'e') ? 14:
+	(a == 'f') ? 15:	
+	16;	
+}
+static void dotMatrix_USBPcDataToArray(dotMatrix* dotMat)
+{
+	const uint8 x1 = dotMat->inData.start_point[0];
+	const uint8 y1 = dotMat->inData.start_point[1];
+	const uint8 x2 = dotMat->inData.end_point[0];
+	const uint8 y2 = dotMat->inData.end_point[1];
+	const uint8 row = x2 - x1;
+	const uint8 col = y2 - y1;
+	const uint8 row_byte = (floor(row/4.0f) + 1);
+	uint8 x;
+	uint8 y;
+	uint16 data_base = (row_byte) * (col+1);
+	
+	for(y = y1;y <= y2;y++)
+	{
+		for(x = x1;x <= x2;x++)
+		{
+			dotMat->array[x][y][0] = 
+			(
+				hexToN(
+					dotMat->inData.data[(uint16)(floor((x-x1)/4.0f)+(row_byte)*(y-y1))]
+				) >> ((x-x1)%4)
+			) & 0x01;
+		}
+	}
+	
+	for(y = y1;y <= y2;y++)
+	{
+		for(x = x1;x <= x2;x++)
+		{
+			dotMat->array[x][y][1] = 
+			(
+				hexToN(
+					dotMat->inData.data[(uint16)(floor((x-x1)/4.0f)+(row_byte)*(y-y1)) + data_base]
+				) >> ((x-x1)%4)
+			) & 0x01;
+		}
+	}
+}
 static void dotMatrix_USBGetStrCmp(dotMatrix* dotMat,uint8* str)
 {
 	uint8 buffer[255];
