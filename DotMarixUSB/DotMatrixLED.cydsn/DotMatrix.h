@@ -46,6 +46,7 @@ void dotMatrix_init(dotMatrix*);
 void dotMatrix_print(dotMatrix*);
 void dotMatrix_clear(dotMatrix*);
 void dotMatrix_getPcData(dotMatrix*);
+void dotMatrix_dataToArray(dotMatrix*);
 
 #endif
 /* [] END OF FILE */

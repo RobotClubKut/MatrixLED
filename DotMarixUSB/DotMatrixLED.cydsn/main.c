@@ -35,6 +35,8 @@ int main()
 	for (;;)
     {
         dotMatrix_clear(&dotMat);
+		dotMatrix_dataToArray(&dotMat);
+		
 		dotMatrix_getPcData(&dotMat);
 		while(!USBUART_CDCIsReady());
 		USBUART_PutString("Success!\r");

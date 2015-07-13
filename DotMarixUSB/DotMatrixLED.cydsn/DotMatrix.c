@@ -10,6 +10,7 @@
  * ========================================
 */
 #include "DotMatrix.h"
+
 #define USB_DEBUG
 
 const uint8 DATA_START[6] = "pcmat";
@@ -29,8 +30,8 @@ static void dotMatrix_lineOut(const uint32* data,const uint8 addr)
         r_data = *(data+i*2+1);
         for(j = 0;j < 32;j++)
         {
-            LED_DR_Write( (r_data >> j) & 0x01 );
-            LED_DG_Write( (g_data >> j) & 0x01 );
+            LED_DR_Write(( (r_data << j) & 0x80000000 )&&1);
+            LED_DG_Write(( (g_data << j) & 0x80000000 )&&1);
             CyDelayUs(1);
             LED_CLK_Write(1);
             CyDelayUs(1);
@@ -45,7 +46,7 @@ static void dotMatrix_lineOut(const uint32* data,const uint8 addr)
     LED_ALE_Write(0);
 }
 
-static void dotMatrix_dataToArray(dotMatrix* dotMat)
+void dotMatrix_dataToArray(dotMatrix* dotMat)
 {
     uint8 i,j,h;
 	
@@ -101,6 +102,29 @@ static uint8 hexToN(char a)
 	(a == 'e') ? 14:
 	(a == 'f') ? 15:	
 	16;	
+}
+
+static void dotMatrix_USBPcDataToData(dotMatrix* dotMat)
+{
+	const uint8 x1 = dotMat->inData.start_point[0];
+	const uint8 y1 = dotMat->inData.start_point[1];
+	const uint8 x2 = dotMat->inData.end_point[0];
+	const uint8 y2 = dotMat->inData.end_point[1];
+	int x,y;
+	int i,j,k;
+	for(i = 0;i < 16;i++)
+	{
+		for(j = 0;j < 3;j++)
+		{
+			dotMat->data[i][j][0] = 0;
+			dotMat->data[i][j][1] = 0;
+			for(k = 0;k < 4;k++)
+			{
+				dotMat->data[i][j][1] |= dotMat->inData.data[i * 12 + j * 3 + k] << (8*k);
+				dotMat->data[i][j][0] |= dotMat->inData.data[i * 12 + j * 3 + k + 12 * 16 + 1] << (8*k);
+			}
+		}
+	}
 }
 static void dotMatrix_USBPcDataToArray(dotMatrix* dotMat)
 {
@@ -198,19 +222,20 @@ void dotMatrix_init(dotMatrix* dotMat)
 	CyGlobalIntEnable;
 	
     dotMatrix_clear(dotMat);
+	dotMatrix_dataToArray(dotMat);
 	dotMatrix_print(dotMat);
 	dotMatrix_print(dotMat);
 	USBUART_Start(0, USBUART_5V_OPERATION);
 	while (!USBUART_GetConfiguration());
     USBUART_CDC_Init();
-	dotMatrix_USBGetStrCmp(dotMat,str);
+//	dotMatrix_USBGetStrCmp(dotMat,str);
 }
 void dotMatrix_print(dotMatrix* dotMat)
 {
     uint8 i;
     static uint8 mem = 0;
 	
-    dotMatrix_dataToArray(dotMat);
+    //dotMatrix_dataToArray(dotMat);
 	
     LED_SE_Write(1);
     LED_ABB_Write(mem);
@@ -349,7 +374,7 @@ void dotMatrix_getPcData(dotMatrix* dotMat)
 							dotMat->inData.end_point[0] = (temp >> 4) & 0xff;
 							dotMat->inData.end_point[1] = temp & 0xf;
 							stage = STAGE_DATA;
-							data_size = ((dotMat->inData.end_point[0] - dotMat->inData.start_point[0] + 1) / 4)
+							data_size = ((dotMat->inData.end_point[0] - dotMat->inData.start_point[0] + 1) / 8)
 									   * (dotMat->inData.end_point[1] - dotMat->inData.start_point[1] + 1)
 									   * 2 + 1;
 							#ifdef USB_DEBUG
@@ -388,8 +413,8 @@ void dotMatrix_getPcData(dotMatrix* dotMat)
 							stage = STAGE_END;
 							#ifdef USB_DEBUG
 							while(!USBUART_CDCIsReady());
-							sprintf(usb_debug_str,"\rdata ok!\r");
-							USBUART_PutString(usb_debug_str);
+							//sprintf(usb_debug_str,"\rdata %s ok!\r",dotMat->inData.data);
+							//USBUART_PutString(usb_debug_str);
 							#endif
 						}
 						else
@@ -440,7 +465,7 @@ void dotMatrix_getPcData(dotMatrix* dotMat)
 			} 
 	    }
 	}
-	dotMatrix_USBPcDataToArray(dotMat);
+	dotMatrix_USBPcDataToData(dotMat);
 	#ifdef USB_DEBUG
 	while(!USBUART_CDCIsReady());
 	USBUART_PutString("\rdata DONE!!\r");
