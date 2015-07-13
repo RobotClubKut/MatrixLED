@@ -123,7 +123,7 @@ static void dotMatrix_USBPcDataToArray(dotMatrix* dotMat)
 			(
 				hexToN(
 					dotMat->inData.data[(uint16)(floor((x-x1)/4.0f)+(row_byte)*(y-y1))]
-				) >> ((x-x1)%4)
+				) >> (((x-x1)%4))
 			) & 0x01;
 		}
 	}
@@ -136,7 +136,7 @@ static void dotMatrix_USBPcDataToArray(dotMatrix* dotMat)
 			(
 				hexToN(
 					dotMat->inData.data[(uint16)(floor((x-x1)/4.0f)+(row_byte)*(y-y1)) + data_base]
-				) >> ((x-x1)%4)
+				) >> (((x-x1)%4))
 			) & 0x01;
 		}
 	}
@@ -199,6 +199,7 @@ void dotMatrix_init(dotMatrix* dotMat)
 	
     dotMatrix_clear(dotMat);
 	dotMatrix_print(dotMat);
+	dotMatrix_print(dotMat);
 	USBUART_Start(0, USBUART_5V_OPERATION);
 	while (!USBUART_GetConfiguration());
     USBUART_CDC_Init();
@@ -223,16 +224,6 @@ void dotMatrix_print(dotMatrix* dotMat)
 void dotMatrix_clear(dotMatrix* dotMat)
 {
     uint8 i,j;
-    /*
-    for(i = 0;i < 16;i++)
-    {
-        for(j = 0;j < 3;j++)
-        {
-            dotMat->data[i][j][0] = 0;
-            dotMat->data[i][j][1] = 0;
-        }
-    }
-    */
     for(i = 0;i < 96;i++)
     {
         for(j = 0;j < 16;j++)
@@ -448,7 +439,8 @@ void dotMatrix_getPcData(dotMatrix* dotMat)
 				}
 			} 
 	    }
-	}	
+	}
+	dotMatrix_USBPcDataToArray(dotMat);
 	#ifdef USB_DEBUG
 	while(!USBUART_CDCIsReady());
 	USBUART_PutString("\rdata DONE!!\r");
