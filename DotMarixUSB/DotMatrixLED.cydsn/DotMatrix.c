@@ -304,7 +304,7 @@ void dotMatrix_getPcData(dotMatrix* dotMat)
 							USBUART_PutString(usb_debug_str);
 							#endif
 							if((dotMat->inData.end_point[0] > 95) || (dotMat->inData.end_point[1] > 15) 
-							|| ((dotMat->inData.end_point[0] - dotMat->inData.start_point[0]) < 4)
+							|| ((dotMat->inData.end_point[0] - dotMat->inData.start_point[0]) < 0)
 							|| ((dotMat->inData.end_point[1] - dotMat->inData.start_point[1]) < 0))
 							{
 								stage = STAGE_ERR;
@@ -340,7 +340,7 @@ void dotMatrix_getPcData(dotMatrix* dotMat)
 						{
 							#ifdef USB_DEBUG
 							while(!USBUART_CDCIsReady());
-							USBUART_PutString("\rpoint start err\r");
+							USBUART_PutString("\rdata err\r");
 							#endif
 							return;
 						}
@@ -367,7 +367,7 @@ void dotMatrix_getPcData(dotMatrix* dotMat)
 						{
 							#ifdef USB_DEBUG
 							while(!USBUART_CDCIsReady());
-							USBUART_PutString("\rpoint start err\r");
+							USBUART_PutString("\rdata end err\r");
 							#endif
 							return;
 						}
