@@ -20,6 +20,8 @@ typedef struct {
 	char end[4];
 	char data[768];
 	char dataEnd[4];
+	uint8 start_point[2];
+	uint8 end_point[2];
 } pcData;
 
 typedef struct {
@@ -28,6 +30,16 @@ typedef struct {
     uint8 array[96][16][2];
 } dotMatrix;
 
+enum PC_DATA_STAGE
+{
+	STAGE_START = 0,
+	STAGE_POINT_START,
+	STAGE_POINT_END,
+	STAGE_DATA ,
+	STAGE_END ,
+	STAGE_DONE ,
+	STAGE_ERR
+};
 void dotMatrix_init(dotMatrix*);
 void dotMatrix_print(dotMatrix*);
 void dotMatrix_clear(dotMatrix*);

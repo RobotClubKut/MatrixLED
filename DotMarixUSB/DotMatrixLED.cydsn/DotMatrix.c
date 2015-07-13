@@ -180,10 +180,214 @@ void dotMatrix_clear(dotMatrix* dotMat)
 
 void dotMatrix_getPcData(dotMatrix* dotMat)
 {
-	dotMatrix_USBGetStrCmp(dotMat,(uint8*)DATA_START);	
+	uint16 temp;
+	uint8 buffer[255];
+	uint8 indata[255];
+	uint8* strerr;
+	uint8 count;
+	uint8 i;
+	uint16 j = 0;
+	uint16 data_size = 0;
+	uint8 stage = STAGE_START;
+	#ifdef USB_DEBUG
+		char usb_debug_str[255];
+	#endif
+	while(stage != STAGE_DONE)
+	{
+		if(USBUART_IsConfigurationChanged() != 0u) 
+	    {
+	        if(USBUART_GetConfiguration() != 0u)   
+	        {
+	            USBUART_CDC_Init();
+	        }
+	    }         
+	    if(USBUART_GetConfiguration() != 0u)    /* Service USB CDC when device configured */
+	    {
+			if(USBUART_DataIsReady() != 0u)
+			{
+				count = USBUART_GetAll(buffer);
+				#ifdef USB_DEBUG
+				while(USBUART_CDCIsReady() == 0u);    /* Wait till component is ready to send more data to the PC */ 
+	            USBUART_PutData(buffer, count);       /* Send data back to PC */
+	            if(count == 255)
+	            {
+	                while(USBUART_CDCIsReady() == 0u); /* Wait till component is ready to send more data to the PC */ 
+	                USBUART_PutData(NULL, 0u);         /* Send zero-length packet to PC */
+	            }
+				#endif
+				for(i = 0;i < count;i++)
+				{
+					if(stage == STAGE_START)
+					{
+						if(j <= strlen((char*)DATA_START))
+						{
+							indata[j] = buffer[i];
+							j++;
+						}
+						if(buffer[i] == '\r')
+						{
+							indata[j-1] = '\0';
+							j = 0;
+							if(strcmp((char*)indata,(char*)DATA_START) == 0)
+							{
+								strcpy(dotMat->inData.head,(char*)indata);
+								stage = STAGE_POINT_START;
+								#ifdef USB_DEBUG
+								while(!USBUART_CDCIsReady());
+								USBUART_PutString("\rstart ok!\r");
+								#endif
+							}
+						}
+					}
+					else if(stage == STAGE_POINT_START)
+					{
+						if(j < 3)
+						{
+							indata[j] = buffer[i];
+							j++;
+						}
+						else if(buffer[i] == '\r')
+						{
+							indata[j] = '\0';
+							j = 0;
+							strcpy(dotMat->inData.start,(char*)indata);
+							temp = (uint16)strtol(dotMat->inData.start,&strerr,16);
+							dotMat->inData.start_point[0] = (temp >> 4) & 0xff;
+							dotMat->inData.start_point[1] = temp & 0xf;
+							stage = STAGE_POINT_END;
+							#ifdef USB_DEBUG
+							while(!USBUART_CDCIsReady());
+							sprintf(usb_debug_str,"\rpoint %x,%x start ok!\r"
+								,dotMat->inData.start_point[0]
+								,dotMat->inData.start_point[1]);
+							USBUART_PutString(usb_debug_str);
+							#endif
+							if((dotMat->inData.start_point[0] > 95) || (dotMat->inData.start_point[1] > 15))
+							{
+								stage = STAGE_ERR;
+							}
+						}
+						else
+						{
+							#ifdef USB_DEBUG
+							while(!USBUART_CDCIsReady());
+							USBUART_PutString("\rpoint start err\r");
+							#endif
+							return;
+						}
+					}
+					
+					else if(stage == STAGE_POINT_END)
+					{
+						if(j < 3)
+						{
+							indata[j] = buffer[i];
+							j++;
+						}
+						else if(buffer[i] == '\r')
+						{
+							indata[j] = '\0';
+							j = 0;
+							strcpy(dotMat->inData.end,(char*)indata);
+							temp = (uint16)strtol(dotMat->inData.end,&strerr,16);
+							dotMat->inData.end_point[0] = (temp >> 4) & 0xff;
+							dotMat->inData.end_point[1] = temp & 0xf;
+							stage = STAGE_DATA;
+							data_size = ((dotMat->inData.end_point[0] - dotMat->inData.start_point[0] + 1) / 4)
+									   * (dotMat->inData.end_point[1] - dotMat->inData.start_point[1] + 1)
+									   * 2;
+							#ifdef USB_DEBUG
+							while(!USBUART_CDCIsReady());
+							sprintf(usb_debug_str,"\rpoint %x,%x end ok!\r"
+								,dotMat->inData.end_point[0]
+								,dotMat->inData.end_point[1]);
+							USBUART_PutString(usb_debug_str);
+							#endif
+							if((dotMat->inData.end_point[0] > 95) || (dotMat->inData.end_point[1] > 15) 
+							|| ((dotMat->inData.end_point[0] - dotMat->inData.start_point[0]) < 4)
+							|| ((dotMat->inData.end_point[1] - dotMat->inData.start_point[1]) < 0))
+							{
+								stage = STAGE_ERR;
+							}
+						}
+						else
+						{
+							#ifdef USB_DEBUG
+							while(!USBUART_CDCIsReady());
+							USBUART_PutString("\rpoint end err\r");
+							#endif
+							return;
+						}
+					}
+					else if(stage == STAGE_DATA)
+					{
+						if(j < data_size)
+						{
+							dotMat->inData.data[j] = buffer[i];
+							j++;
+						}
+						else if(buffer[i] == '\r')
+						{
+							j = 0;
+							stage = STAGE_END;
+							#ifdef USB_DEBUG
+							while(!USBUART_CDCIsReady());
+							sprintf(usb_debug_str,"\rdata ok!\r");
+							USBUART_PutString(usb_debug_str);
+							#endif
+						}
+						else
+						{
+							#ifdef USB_DEBUG
+							while(!USBUART_CDCIsReady());
+							USBUART_PutString("\rpoint start err\r");
+							#endif
+							return;
+						}
+					}
+					else if(stage == STAGE_END)
+					{
+						if(j < strlen((char*)DATA_END))
+						{
+							indata[j] = buffer[i];
+							j++;
+						}
+						else if(buffer[i] == '\r')
+						{
+							j = 0;
+							stage = STAGE_DONE;
+							#ifdef USB_DEBUG
+							while(!USBUART_CDCIsReady());
+							sprintf(usb_debug_str,"\rdata end ok!\r");
+							USBUART_PutString(usb_debug_str);
+							#endif
+							break;
+						}
+						else
+						{
+							#ifdef USB_DEBUG
+							while(!USBUART_CDCIsReady());
+							USBUART_PutString("\rpoint start err\r");
+							#endif
+							return;
+						}
+					}
+					else if(stage == STAGE_ERR)
+					{
+						#ifdef USB_DEBUG
+						while(!USBUART_CDCIsReady());
+						USBUART_PutString("\rget pc data err\r");
+						#endif
+						return;
+					}
+				}
+			} 
+	    }
+	}	
+	#ifdef USB_DEBUG
 	while(!USBUART_CDCIsReady());
-	USBUART_PutString((char8*)DATA_START);
-	strcpy(dotMat->inData.head,(char*)DATA_START);
+	USBUART_PutString("\rdata DONE!!\r");
+	#endif
 }
 
 /* [] END OF FILE */
