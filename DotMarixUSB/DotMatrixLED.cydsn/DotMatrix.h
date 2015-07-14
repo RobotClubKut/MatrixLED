@@ -43,6 +43,7 @@ enum PC_DATA_STAGE
 	STAGE_ERR
 };
 void dotMatrix_init(dotMatrix*);
+void dotMatrix_USBinit(dotMatrix*);
 void dotMatrix_print(dotMatrix*);
 void dotMatrix_clear(dotMatrix*);
 void dotMatrix_getPcData(dotMatrix*);

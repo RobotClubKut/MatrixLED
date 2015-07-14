@@ -35,7 +35,7 @@ static void dotMatrix_lineOut(const uint32* data,const uint8 addr)
             CyDelayUs(1);
             LED_CLK_Write(1);
             CyDelayUs(1);
-            LED_CLK_Write(0);
+			LED_CLK_Write(0);
         }
     }
     CyDelayUs(1);
@@ -218,13 +218,15 @@ static void dotMatrix_USBGetStrCmp(dotMatrix* dotMat,uint8* str)
 }
 void dotMatrix_init(dotMatrix* dotMat)
 {
-	uint8 str[10] = "start";
 	CyGlobalIntEnable;
 	
     dotMatrix_clear(dotMat);
 	dotMatrix_dataToArray(dotMat);
 	dotMatrix_print(dotMat);
 	dotMatrix_print(dotMat);
+}
+void dotMatrix_USBinit(dotMatrix* dotMat)
+{
 	USBUART_Start(0, USBUART_5V_OPERATION);
 	while (!USBUART_GetConfiguration());
     USBUART_CDC_Init();
