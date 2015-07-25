@@ -1,28 +1,25 @@
 #include <stdio.h>
 #include "DotMatrix.h"
-#include "jiskan.h"
-
+#include "font_8x8.h"
 
 
 int main(){
 
 	dotMatrix dotMat;
 	int x, y;
-	unsigned int jis_num = 1200;
+	char mozi = 'z'-0x20;
 	dotMatrix_clear(&dotMat);
 
-	for(y=0;y<15;y++){
-		for(x=0;x<15;x++){
-			if(jis_font[font_line*jis_num+y] & (1 << x)){
-				dotMat.array[15-x][y][0] = 1;
+	for(y=0;y<8;y++){
+		for(x=0;x<8;x++){
+			if(font[8*mozi+y] & (1 << x)){
+				dotMat.array[y][x][0] = 1;
 			}
 			else{
-				dotMat.array[15-x][y][0] = 0;
+				dotMat.array[y][x][0] = 0;
 			}
  		}
 	}
-
-
 
 	dotMatrix_print(&dotMat);
 }
