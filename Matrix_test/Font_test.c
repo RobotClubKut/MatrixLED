@@ -7,7 +7,7 @@ int main(){
 
 	dotMatrix dotMat;
 	int x, y;
-	char mozi = 'z'-0x20;
+	char mozi = 'f'-0x20;
 	dotMatrix_clear(&dotMat);
 
 	for(y=0;y<8;y++){
